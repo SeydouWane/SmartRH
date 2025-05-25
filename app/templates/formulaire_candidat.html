@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Formulaire de Candidature</title>
+  </head>
+  <body>
+    <h2>Candidature pour : {{ appel.titre }}</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="text" name="nom" placeholder="Nom" required /><br />
+      <input type="text" name="prenom" placeholder="Prénom" required /><br />
+      <input type="date" name="date_naissance" required /><br />
+      <input
+        type="text"
+        name="pays"
+        placeholder="Pays de résidence"
+        required
+      /><br />
+      <input
+        type="number"
+        step="0.1"
+        name="experience"
+        placeholder="Années d’expérience"
+        required
+      /><br />
+      <input type="text" name="linkedin" placeholder="Profil LinkedIn" /><br />
+      <textarea
+        name="motivation"
+        placeholder="Votre motivation"
+        required
+      ></textarea
+      ><br />
+      <input type="file" name="cv" required /><br />
+      <button type="submit">CANDIDATER</button>
+    </form>
+  </body>
+</html>

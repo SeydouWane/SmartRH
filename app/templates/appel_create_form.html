@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Créer un appel à candidature</title>
+    <style>
+      body {
+        font-family: Arial;
+        margin: 30px;
+      }
+      .form-section {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      .btn {
+        padding: 10px 15px;
+        background-color: green;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>➕ Ajouter un appel à candidature</h2>
+
+    <form method="POST">
+      <div class="form-section">
+        <label for="titre">Nom de l’appel</label>
+        <input
+          type="text"
+          name="titre"
+          id="titre"
+          placeholder="Ex: Data Analyst"
+          required
+        />
+      </div>
+
+      <div class="form-section">
+        <label for="date_debut">Date de début</label>
+        <input type="date" name="date_debut" id="date_debut" required />
+      </div>
+
+      <div class="form-section">
+        <label for="date_fin">Date de fin</label>
+        <input type="date" name="date_fin" id="date_fin" required />
+      </div>
+
+      <div class="form-section">
+        <label for="description">Description de l’appel</label>
+        <textarea
+          name="description"
+          id="description"
+          rows="4"
+          placeholder="Présentez le poste ou le besoin RH..."
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-section">
+        <label for="criteres"
+          >Critères attendus (séparés par des virgules)</label
+        >
+        <input
+          type="text"
+          name="criteres"
+          id="criteres"
+          placeholder="Ex: Python, Power BI, SQL"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn">GÉNÉRER LE LIEN DU FORMULAIRE</button>
+    </form>
+
+    <p>
+      <a href="{{ url_for('appel.appel_home') }}"
+        >⬅ Retour au tableau de bord</a
+      >
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul>
+      {% for category, message in messages %}
+      <li style="color: green"><strong>{{ message }}</strong></li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+  </body>
+</html>

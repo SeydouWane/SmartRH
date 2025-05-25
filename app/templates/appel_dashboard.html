@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tableau de bord RH</title>
+    <style>
+      body {
+        font-family: Arial;
+        margin: 30px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border: 1px solid green;
+        padding: 8px;
+        text-align: center;
+      }
+
+      th {
+        background-color: #e0ffe0;
+      }
+
+      .btn {
+        padding: 10px 15px;
+        background: green;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+
+      form {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        align-items: center;
+      }
+
+      input[type="text"],
+      input[type="date"] {
+        padding: 5px;
+        width: 100%;
+        max-width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <h2>ESPACE D’APPEL À CANDIDATURE</h2>
+      <form method="POST" action="{{ url_for('auth.logout') }}">
+        <button type="submit" class="btn" style="background-color: red">
+          Se déconnecter
+        </button>
+      </form>
+    </div>
+
+    <p>Bienvenue, {{ current_user.nom }} {{ current_user.prenom }}</p>
+
+    <a class="btn" href="{{ url_for('appel.creer_appel') }}"
+      >+ Créer un nouvel appel</a
+    >
+
+    <h4>Rechercher</h4>
+    <form
+      id="filtre-form"
+      style="display: flex; gap: 10px; align-items: center; margin: 20px 0"
+    >
+      <input type="text" id="filtre-titre" placeholder="🔍 Nom appel" />
+      <input type="date" id="filtre-date" />
+      <input type="text" id="filtre-critere" placeholder="📌 Critère" />
+      <button type="submit" class="btn">Rechercher</button>
+    </form>
+
+    <br />
+
+    <table>
+      <thead>
+        <tr>
+          <th>NOM APPEL</th>
+          <th>DATE DEBUT</th>
+          <th>DATE FIN</th>
+          <th>DESCRIPTION</th>
+          <th>CRITÈRES</th>
+          <th>LIEN</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appel in appels %}
+        <tr>
+          <td>{{ appel.titre }}</td>
+          <td>{{ appel.date_debut.strftime('%d/%m/%Y') }}</td>
+          <td>{{ appel.date_fin.strftime('%d/%m/%Y') }}</td>
+          <td>{{ appel.description[:30] }}...</td>
+          <td>
+            <ul style="list-style-type: none; padding: 0">
+              {% for critere in appel.criteres %}
+              <li>{{ critere.nom }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            <a href="{{ appel.lien_formulaire }}" target="_blank"
+              >Voir formulaire</a
+            >
+          </td>
+          <td>
+            <a href="#">👁</a> | <a href="#">✏️</a> |
+            <a href="#">🗑</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <script>
+      document
+        .getElementById("filtre-titre")
+        .addEventListener("input", filtrerTableau);
+      document
+        .getElementById("filtre-date")
+        .addEventListener("input", filtrerTableau);
+      document
+        .getElementById("filtre-critere")
+        .addEventListener("input", filtrerTableau);
+
+      function filtrerTableau() {
+        let titre = document.getElementById("filtre-titre").value.toLowerCase();
+        let date = document.getElementById("filtre-date").value;
+        let critere = document
+          .getElementById("filtre-critere")
+          .value.toLowerCase();
+
+        let lignes = document.querySelectorAll("tbody tr");
+
+        lignes.forEach((row) => {
+          let colTitre = row.children[0].textContent.toLowerCase();
+          let colDate = row.children[1].textContent;
+          let colCrit = row.children[4].textContent.toLowerCase();
+
+          let matchTitre = colTitre.includes(titre);
+          let matchDate = !date || colDate === formatDate(date);
+          let matchCrit = colCrit.includes(critere);
+
+          if (matchTitre && matchDate && matchCrit) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      }
+
+      function formatDate(inputDate) {
+        let date = new Date(inputDate);
+        return date.toLocaleDateString("fr-FR");
+      }
+    </script>
+  </body>
+</html>
