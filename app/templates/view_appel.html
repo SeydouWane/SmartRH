@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Détails de l'appel</title>
+  </head>
+  <body>
+    <h2>Détails de l'appel</h2>
+    <p><strong>Titre :</strong> {{ appel.titre }}</p>
+    <p><strong>Description :</strong></p>
+    <p>{{ appel.description|safe }}</p>
+    <p><strong>Date de début :</strong> {{ appel.date_debut }}</p>
+    <p><strong>Date de fin :</strong> {{ appel.date_fin }}</p>
+
+    <a href="{{ url_for('appel.appel_home')}}">⬅ Retour au tableau</a>
+    <a
+      class="btn"
+      href="{{ url_for('candidat.list_candidatures', appel_id=appel.id) }}"
+    >
+      📄 Voir les candidatures
+    </a>
+  </body>
+</html>

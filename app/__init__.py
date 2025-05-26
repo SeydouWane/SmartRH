@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from app.models import db, User  # Reprendre l’instance existante !
 
+db = SQLAlchemy()
 login_manager = LoginManager()
 
 def create_app():
@@ -11,14 +11,16 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Qqmkl%408345@localhost:5432/rh_cv_platform'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    db.init_app(app)  # 👈 essentiel pour éviter ton erreur
+    # 👇 initialise les extensions ici
+    db.init_app(app)
     login_manager.init_app(app)
+
+    from app.models import User  # 👈 Import ICI et pas en haut
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # Import et enregistrement des blueprints
     from app.routes.auth_routes import auth_bp
     from app.routes.appel_routes import appel_bp
     from app.routes.candidat_routes import candidat_bp

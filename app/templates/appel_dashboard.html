@@ -3,15 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <title>Tableau de bord RH</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
     <style>
       body {
-        font-family: Arial;
+        font-family: Arial, sans-serif;
         margin: 30px;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
+        margin-top: 20px;
       }
 
       th,
@@ -27,10 +32,16 @@
 
       .btn {
         padding: 10px 15px;
-        background: green;
+        background-color: green;
         color: white;
         text-decoration: none;
+        border: none;
         border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        opacity: 0.9;
       }
 
       form {
@@ -46,9 +57,26 @@
         width: 100%;
         max-width: 200px;
       }
+
+      .filter-buttons {
+        margin-left: auto;
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .btn-orange {
+        background-color: orange;
+      }
+
+      .btn-gray {
+        background-color: gray;
+      }
     </style>
   </head>
+
   <body>
+    <!-- En-tête -->
     <div
       style="display: flex; justify-content: space-between; align-items: center"
     >
@@ -62,23 +90,42 @@
 
     <p>Bienvenue, {{ current_user.nom }} {{ current_user.prenom }}</p>
 
+    <!-- Bouton création -->
     <a class="btn" href="{{ url_for('appel.creer_appel') }}"
       >+ Créer un nouvel appel</a
     >
 
+    <!-- Filtres -->
     <h4>Rechercher</h4>
-    <form
-      id="filtre-form"
-      style="display: flex; gap: 10px; align-items: center; margin: 20px 0"
-    >
+    <form id="filtre-form">
       <input type="text" id="filtre-titre" placeholder="🔍 Nom appel" />
       <input type="date" id="filtre-date" />
       <input type="text" id="filtre-critere" placeholder="📌 Critère" />
       <button type="submit" class="btn">Rechercher</button>
     </form>
 
-    <br />
+    <!-- Filtres statut -->
+    <div class="filter-buttons">
+      <button type="button" class="btn" onclick="filtrerParStatut('tous')">
+        Tous
+      </button>
+      <button
+        type="button"
+        class="btn btn-orange"
+        onclick="filtrerParStatut('encours')"
+      >
+        En cours
+      </button>
+      <button
+        type="button"
+        class="btn btn-gray"
+        onclick="filtrerParStatut('termines')"
+      >
+        Terminés
+      </button>
+    </div>
 
+    <!-- Tableau des appels -->
     <table>
       <thead>
         <tr>
@@ -97,7 +144,7 @@
           <td>{{ appel.titre }}</td>
           <td>{{ appel.date_debut.strftime('%d/%m/%Y') }}</td>
           <td>{{ appel.date_fin.strftime('%d/%m/%Y') }}</td>
-          <td>{{ appel.description[:30] }}...</td>
+          <td>{{ appel.description[:100]|safe }}...</td>
           <td>
             <ul style="list-style-type: none; padding: 0">
               {% for critere in appel.criteres %}
@@ -111,14 +158,32 @@
             >
           </td>
           <td>
-            <a href="#">👁</a> | <a href="#">✏️</a> |
-            <a href="#">🗑</a>
+            <a
+              href="{{ url_for('appel.view_appel', appel_id=appel.id) }}"
+              title="Voir"
+            >
+              <i class="fa fa-eye"></i>
+            </a>
+            <a
+              href="{{ url_for('appel.edit_appel', appel_id=appel.id) }}"
+              title="Modifier"
+            >
+              <i class="fa fa-pencil"></i>
+            </a>
+            <a
+              href="{{ url_for('appel.delete_appel', appel_id=appel.id) }}"
+              title="Supprimer"
+              onclick="return confirm('Supprimer cet appel ?');"
+            >
+              <i class="fa fa-trash"></i>
+            </a>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
 
+    <!-- Script de filtrage -->
     <script>
       document
         .getElementById("filtre-titre")
@@ -131,34 +196,52 @@
         .addEventListener("input", filtrerTableau);
 
       function filtrerTableau() {
-        let titre = document.getElementById("filtre-titre").value.toLowerCase();
-        let date = document.getElementById("filtre-date").value;
-        let critere = document
+        const titre = document
+          .getElementById("filtre-titre")
+          .value.toLowerCase();
+        const date = document.getElementById("filtre-date").value;
+        const critere = document
           .getElementById("filtre-critere")
           .value.toLowerCase();
 
-        let lignes = document.querySelectorAll("tbody tr");
+        const lignes = document.querySelectorAll("tbody tr");
 
         lignes.forEach((row) => {
-          let colTitre = row.children[0].textContent.toLowerCase();
-          let colDate = row.children[1].textContent;
-          let colCrit = row.children[4].textContent.toLowerCase();
+          const colTitre = row.children[0].textContent.toLowerCase();
+          const colDate = row.children[1].textContent;
+          const colCrit = row.children[4].textContent.toLowerCase();
 
-          let matchTitre = colTitre.includes(titre);
-          let matchDate = !date || colDate === formatDate(date);
-          let matchCrit = colCrit.includes(critere);
+          const matchTitre = colTitre.includes(titre);
+          const matchDate = !date || colDate === formatDate(date);
+          const matchCrit = colCrit.includes(critere);
 
-          if (matchTitre && matchDate && matchCrit) {
-            row.style.display = "";
-          } else {
-            row.style.display = "none";
-          }
+          row.style.display =
+            matchTitre && matchDate && matchCrit ? "" : "none";
         });
       }
 
       function formatDate(inputDate) {
-        let date = new Date(inputDate);
+        const date = new Date(inputDate);
         return date.toLocaleDateString("fr-FR");
+      }
+
+      function filtrerParStatut(statut) {
+        const lignes = document.querySelectorAll("tbody tr");
+        const aujourdHui = new Date();
+
+        lignes.forEach((row) => {
+          const dateFinTexte = row.children[2].textContent.trim(); // "DATE FIN"
+          const [jour, mois, annee] = dateFinTexte.split("/");
+          const dateFin = new Date(`${annee}-${mois}-${jour}`);
+
+          if (statut === "tous") {
+            row.style.display = "";
+          } else if (statut === "encours") {
+            row.style.display = dateFin >= aujourdHui ? "" : "none";
+          } else if (statut === "termines") {
+            row.style.display = dateFin < aujourdHui ? "" : "none";
+          }
+        });
       }
     </script>
   </body>

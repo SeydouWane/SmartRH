@@ -3,6 +3,8 @@ from app.models import db, Appel, Candidat
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from app.models import Candidature, Candidat, Appel, db
+from app.models import db, Appel, Critere, User, Candidature, Candidat
 
 candidat_bp = Blueprint('candidat', __name__)
 
@@ -44,3 +46,9 @@ def soumettre_formulaire(lien):
     db.session.commit()
     flash(" Votre candidature a été enregistrée avec succès !", "success")
     return redirect(request.url)
+
+@candidat_bp.route('/appel/<int:appel_id>/candidatures')
+def list_candidatures(appel_id):
+    candidatures = Candidature.query.filter_by(appel_id=appel_id).all()
+    appel = Appel.query.get_or_404(appel_id)
+    return render_template("candidatures_par_appel.html", candidatures=candidatures, appel=appel)

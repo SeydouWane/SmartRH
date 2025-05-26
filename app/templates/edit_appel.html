@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Modifier l'appel</title>
+  </head>
+  <body>
+    <h2>Modifier l'appel</h2>
+    <form method="POST">
+      <p>
+        <label>Titre :</label><br />
+        <input type="text" name="titre" value="{{ appel.titre }}" />
+      </p>
+      <p>
+        <label>Description :</label><br />
+        <textarea name="description">{{ appel.description }}</textarea>
+      </p>
+      <p>
+        <label>Date de début :</label><br />
+        <input type="date" name="date_debut" value="{{ appel.date_debut }}" />
+      </p>
+      <p>
+        <label>Date de fin :</label><br />
+        <input type="date" name="date_fin" value="{{ appel.date_fin }}" />
+      </p>
+      <button type="submit">Enregistrer</button>
+    </form>
+    <a href="{{url_for('appel.appel_home') }}">⬅ Ansnuler</a>
+  </body>
+</html>

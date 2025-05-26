@@ -6,6 +6,9 @@
   </head>
   <body>
     <h2>Candidature pour : {{ appel.titre }}</h2>
+    <a href="{{ url_for('appel.view_appel', appel_id=appel.id) }}" title="Voir"
+      ><i class="fa fa-eye"></i
+    ></a>
     <form method="POST" enctype="multipart/form-data">
       <input type="text" name="nom" placeholder="Nom" required /><br />
       <input type="text" name="prenom" placeholder="Prénom" required /><br />

@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from app.models import db, Appel, Critere
 import uuid
 import datetime
 import re
 
+from app.models import db, Appel, Critere, User, Candidature, Candidat
 
 appel_bp = Blueprint('appel', __name__)
 
@@ -52,13 +52,40 @@ def creer_appel():
 @appel_bp.route('/dashboard')
 @login_required
 def appel_home():
-    appels = Appel.query.filter_by(user_id=current_user.id)
+    appels = Appel.query.filter_by(user_id=current_user.id).all()  
     return render_template('appel_dashboard.html', appels=appels)
 
 
-@appel_bp.route('/appel/edit/<int:appel_id>', methods=['GET', 'POST'])
-@login_required
+from flask import render_template, redirect, url_for, request, flash
+from app.models import Appel, Critere, db
+
+#  Voir un appel
+@appel_bp.route('/appel/<int:appel_id>')
+def view_appel(appel_id):
+    appel = Appel.query.get_or_404(appel_id)
+    return render_template('view_appel.html', appel=appel)
+
+#  Modifier un appel
+@appel_bp.route('/appel/<int:appel_id>/edit', methods=['GET', 'POST'])
 def edit_appel(appel_id):
     appel = Appel.query.get_or_404(appel_id)
-    if appel.user_id != current_user.id:
-        abort(403)  
+
+    if request.method == 'POST':
+        appel.titre = request.form['titre']
+        appel.description = request.form['description']
+        appel.date_debut = request.form['date_debut']
+        appel.date_fin = request.form['date_fin']
+        db.session.commit()
+        flash("Appel mis à jour avec succès ✅", "success")
+        return redirect(url_for('auth.dashboard'))
+
+    return render_template('edit_appel.html', appel=appel)
+
+#  Supprimer un appel
+@appel_bp.route('/appel/<int:appel_id>/delete')
+def delete_appel(appel_id):
+    appel = Appel.query.get_or_404(appel_id)
+    db.session.delete(appel)
+    db.session.commit()
+    flash("Appel supprimé avec succès 🗑️", "info")
+    return redirect(url_for('auth.dashboard'))

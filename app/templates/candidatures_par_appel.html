@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Candidatures pour {{ appel.titre }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f0f0f0;
+      }
+
+      a.btn {
+        display: inline-block;
+        padding: 8px 12px;
+        margin-top: 20px;
+        background-color: green;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+
+      .btn-return {
+        background-color: gray;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>📄 Candidatures pour : <em>{{ appel.titre }}</em></h2>
+
+    {% if appel.candidatures and appel.candidatures|length > 0 %}
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Date de soumission</th>
+          <th>CV</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in appel.candidatures %}
+        <tr>
+          <td>{{ c.nom }}</td>
+          <td>{{ c.prenom }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.telephone or '-' }}</td>
+          <td>{{ c.date_soumission.strftime('%d/%m/%Y à %H:%M') }}</td>
+          <td>
+            {% if c.cv_filename %}
+            <a
+              href="{{ url_for('static', filename='uploads/' ~ c.cv_filename) }}"
+              target="_blank"
+              >📄 Voir CV</a
+            >
+            {% else %} Aucun CV {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Aucune candidature pour le moment.</p>
+    {% endif %}
+
+    <a
+      class="btn btn-return"
+      href="{{ url_for('appel.view_appel', appel_id=appel.id) }}"
+      >⬅ Retour aux détails</a
+    >
+  </body>
+</html>
