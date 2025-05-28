@@ -3,9 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <title>Modifier l'appel</title>
+    <style>
+      input[type="text"] {
+        width: 300px;
+      }
+    </style>
   </head>
   <body>
-    <h2>Modifier l'appel</h2>
+    <h2>✏️ Modifier l'appel</h2>
     <form method="POST">
       <p>
         <label>Titre :</label><br />
@@ -23,8 +28,44 @@
         <label>Date de fin :</label><br />
         <input type="date" name="date_fin" value="{{ appel.date_fin }}" />
       </p>
-      <button type="submit">Enregistrer</button>
+
+      <h3>Critères attendus</h3>
+      {% for critere in appel.criteres %}
+      <p>
+        <input
+          type="text"
+          name="criteres_existants"
+          value="{{ critere.intitule }}"
+        />
+        <input type="hidden" name="criteres_ids" value="{{ critere.id }}" />
+      </p>
+      {% endfor %}
+
+      <h4>Ajouter de nouveaux critères :</h4>
+      <div id="nouveaux-criteres">
+        <input
+          type="text"
+          name="criteres_nouveaux"
+          placeholder="Nouveau critère"
+        /><br />
+      </div>
+      <button type="button" onclick="ajouterChamp()">+ Ajouter un autre</button>
+      <br />
+      <button type="submit">✅ Enregistrer</button>
     </form>
-    <a href="{{url_for('appel.appel_home') }}">⬅ Ansnuler</a>
+
+    <a href="{{ url_for('appel.appel_home') }}">⬅ Annuler</a>
+
+    <script>
+      function ajouterChamp() {
+        const div = document.getElementById("nouveaux-criteres");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = "criteres_nouveaux";
+        input.placeholder = "Nouveau critère";
+        div.appendChild(document.createElement("br"));
+        div.appendChild(input);
+      }
+    </script>
   </body>
 </html>

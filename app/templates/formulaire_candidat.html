@@ -2,39 +2,104 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>Formulaire de Candidature</title>
+    <title>Formulaire de Candidature - {{ appel.titre }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        background-color: #f8f8f8;
+      }
+
+      h2 {
+        color: #333;
+      }
+
+      form {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        max-width: 700px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      button {
+        margin-top: 20px;
+        padding: 10px 15px;
+        background-color: green;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .success {
+        color: green;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body>
-    <h2>Candidature pour : {{ appel.titre }}</h2>
-    <a href="{{ url_for('appel.view_appel', appel_id=appel.id) }}" title="Voir"
-      ><i class="fa fa-eye"></i
-    ></a>
+    <h2>Postuler à : <em>{{ appel.titre }}</em></h2>
+
     <form method="POST" enctype="multipart/form-data">
-      <input type="text" name="nom" placeholder="Nom" required /><br />
-      <input type="text" name="prenom" placeholder="Prénom" required /><br />
-      <input type="date" name="date_naissance" required /><br />
-      <input
-        type="text"
-        name="pays"
-        placeholder="Pays de résidence"
-        required
-      /><br />
-      <input
-        type="number"
-        step="0.1"
-        name="experience"
-        placeholder="Années d’expérience"
-        required
-      /><br />
-      <input type="text" name="linkedin" placeholder="Profil LinkedIn" /><br />
-      <textarea
-        name="motivation"
-        placeholder="Votre motivation"
-        required
-      ></textarea
-      ><br />
-      <input type="file" name="cv" required /><br />
-      <button type="submit">CANDIDATER</button>
+      <label for="nom">Nom</label>
+      <input type="text" name="nom" required />
+
+      <label for="prenom">Prénom</label>
+      <input type="text" name="prenom" required />
+
+      <label for="email">Email</label>
+      <input type="email" name="email" required />
+
+      <label for="telephone">Téléphone</label>
+      <input type="text" name="telephone" />
+
+      <label for="date_naissance">Date de naissance</label>
+      <input type="date" name="date_naissance" />
+
+      <label for="pays">Pays</label>
+      <input type="text" name="pays" />
+
+      <label for="experience">Années d’expérience</label>
+      <input type="number" name="experience" step="0.1" />
+
+      <label for="linkedin">Lien LinkedIn</label>
+      <input type="url" name="linkedin" />
+
+      <label for="motivation">Lettre de motivation</label>
+      <textarea name="motivation" rows="5"></textarea>
+
+      <label for="cv">CV (format PDF uniquement)</label>
+      <input type="file" name="cv" accept=".pdf" required />
+
+      <button type="submit">Soumettre la candidature</button>
     </form>
+
+    <br />
+    <a href="{{ url_for('appel.appel_home') }}">⬅ Retour au tableau de bord</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul>
+      {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
   </body>
 </html>

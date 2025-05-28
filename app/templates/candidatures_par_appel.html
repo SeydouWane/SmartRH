@@ -42,36 +42,45 @@
     </style>
   </head>
   <body>
-    <h2>📄 Candidatures pour : <em>{{ appel.titre }}</em></h2>
+    <h2>📄 Classement des candidatures pour : <em>{{ appel.titre }}</em></h2>
 
-    {% if appel.candidatures and appel.candidatures|length > 0 %}
+    {% if resultats and resultats|length > 0 %}
     <table>
       <thead>
         <tr>
+          <th>🏆 Rang</th>
           <th>Nom</th>
           <th>Prénom</th>
           <th>Email</th>
           <th>Téléphone</th>
           <th>Date de soumission</th>
+          <th>Critères trouvés</th>
+          <th>Années d’expérience</th>
+          <th>Score total</th>
           <th>CV</th>
         </tr>
       </thead>
       <tbody>
-        {% for c in appel.candidatures %}
+        {% for item in resultats %}
         <tr>
-          <td>{{ c.nom }}</td>
-          <td>{{ c.prenom }}</td>
-          <td>{{ c.email }}</td>
-          <td>{{ c.telephone or '-' }}</td>
-          <td>{{ c.date_soumission.strftime('%d/%m/%Y à %H:%M') }}</td>
+          <td>{{ loop.index }}</td>
+          <td>{{ item.candidat.nom }}</td>
+          <td>{{ item.candidat.prenom }}</td>
+          <td>{{ item.candidat.email }}</td>
+          <td>{{ item.candidat.telephone or '-' }}</td>
           <td>
-            {% if c.cv_filename %}
+            {{ item.candidat.date_soumission.strftime('%d/%m/%Y à %H:%M') }}
+          </td>
+          <td>{{ item.score_criteres }}</td>
+          <td>{{ item.score_experience }}</td>
+          <td><strong>{{ item.score }}</strong></td>
+          <td>
             <a
-              href="{{ url_for('static', filename='uploads/' ~ c.cv_filename) }}"
+              href="{{ url_for('static', filename='uploads/' ~ item.candidat.cv_filename) }}"
               target="_blank"
-              >📄 Voir CV</a
             >
-            {% else %} Aucun CV {% endif %}
+              📄 Voir CV
+            </a>
           </td>
         </tr>
         {% endfor %}
@@ -83,8 +92,8 @@
 
     <a
       class="btn btn-return"
-      href="{{ url_for('appel.view_appel', appel_id=appel.id) }}"
-      >⬅ Retour aux détails</a
+      href="{{ url_for('appel.appel_home', appel_id=appel.id) }}"
+      >⬅ Retour au tableau</a
     >
   </body>
 </html>

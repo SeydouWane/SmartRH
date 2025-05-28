@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 import uuid
 import datetime
 import re
-
+from flask import render_template, redirect, url_for, request, flash
 from app.models import db, Appel, Critere, User, Candidature, Candidat
 
 appel_bp = Blueprint('appel', __name__)
@@ -32,16 +32,15 @@ def creer_appel():
             date_debut=date_debut,
             date_fin=date_fin,
             lien_formulaire=lien_formulaire,
-            user_id=current_user.id  # <- associer au recruteur connecté
+            user_id=current_user.id  
         )
-
-
         db.session.add(nouvel_appel)
         db.session.commit()
 
         # Ajouter les critères
         for crit in criteres_texte.split(','):
-            db.session.add(Critere(nom=crit.strip(), appel_id=nouvel_appel.id))
+            db.session.add(Critere(intitule=crit.strip(), appel_id=nouvel_appel.id))
+
 
         db.session.commit()
         flash(f"Appel créé avec succès. Lien : {lien_formulaire}", "success")
@@ -54,16 +53,6 @@ def creer_appel():
 def appel_home():
     appels = Appel.query.filter_by(user_id=current_user.id).all()  
     return render_template('appel_dashboard.html', appels=appels)
-
-
-from flask import render_template, redirect, url_for, request, flash
-from app.models import Appel, Critere, db
-
-#  Voir un appel
-@appel_bp.route('/appel/<int:appel_id>')
-def view_appel(appel_id):
-    appel = Appel.query.get_or_404(appel_id)
-    return render_template('view_appel.html', appel=appel)
 
 #  Modifier un appel
 @appel_bp.route('/appel/<int:appel_id>/edit', methods=['GET', 'POST'])
@@ -82,10 +71,12 @@ def edit_appel(appel_id):
     return render_template('edit_appel.html', appel=appel)
 
 #  Supprimer un appel
-@appel_bp.route('/appel/<int:appel_id>/delete')
+@appel_bp.route('/appel/<int:appel_id>/delete', methods=['POST'])
+@login_required
 def delete_appel(appel_id):
     appel = Appel.query.get_or_404(appel_id)
     db.session.delete(appel)
     db.session.commit()
-    flash("Appel supprimé avec succès 🗑️", "info")
-    return redirect(url_for('auth.dashboard'))
+    flash("Appel supprimé avec succès.", "success")
+    return redirect(url_for('appel.appel_home'))
+
