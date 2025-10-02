@@ -10,3 +10,4 @@ pandas
 fitz
 PyMuPDF
 docx2txt
+Flask-Migrate
