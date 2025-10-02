@@ -1,8 +1,9 @@
-# run.py
-from app import create_app, db
-from flask_migrate import Migrate
+import os # Assurez-vous d'importer 'os' en haut du fichier si ce n'est pas déjà fait
+from app import create_app
+
 app = create_app()
 
-migrate = Migrate(app, db)
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Ceci est la ligne cruciale que vous voulez conserver
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
