@@ -12,3 +12,17 @@ PyMuPDF
 docx2txt
 Flask-Migrate
 pytesseract
+Flask
+gunicorn
+python-dotenv 
+Flask-SQLAlchemy
+Flask-Migrate
+psycopg2-binary 
+Flask-Login
+Werkzeug 
+pytesseract
+Pillow # PIL pour pytesseract
+PyMuPDF # fitz pour PyMuPDF
+docx2txt
+sentence-transformers
+PyPDF2
