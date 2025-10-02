@@ -11,3 +11,4 @@ fitz
 PyMuPDF
 docx2txt
 Flask-Migrate
+pytesseract
