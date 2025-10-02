@@ -1,70 +1,211 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='SmartRH.png') }}" />
     <meta charset="UTF-8" />
     <title>Modifier l'appel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-      input[type="text"] {
-        width: 300px;
+      /* Styles personnalisés pour mieux intégrer les icônes et les champs de formulaire */
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200;
+      }
+
+      /* Cache la flèche sur les champs de type date */
+      input[type="date"]::-webkit-inner-spin-button,
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
       }
     </style>
   </head>
-  <body>
-    <h2>✏️ Modifier l'appel</h2>
-    <form method="POST">
-      <p>
-        <label>Titre :</label><br />
-        <input type="text" name="titre" value="{{ appel.titre }}" />
-      </p>
-      <p>
-        <label>Description :</label><br />
-        <textarea name="description">{{ appel.description }}</textarea>
-      </p>
-      <p>
-        <label>Date de début :</label><br />
-        <input type="date" name="date_debut" value="{{ appel.date_debut }}" />
-      </p>
-      <p>
-        <label>Date de fin :</label><br />
-        <input type="date" name="date_fin" value="{{ appel.date_fin }}" />
-      </p>
-
-      <h3>Critères attendus</h3>
-      {% for critere in appel.criteres %}
-      <p>
-        <input
-          type="text"
-          name="criteres_existants"
-          value="{{ critere.intitule }}"
-        />
-        <input type="hidden" name="criteres_ids" value="{{ critere.id }}" />
-      </p>
-      {% endfor %}
-
-      <h4>Ajouter de nouveaux critères :</h4>
-      <div id="nouveaux-criteres">
-        <input
-          type="text"
-          name="criteres_nouveaux"
-          placeholder="Nouveau critère"
-        /><br />
+  <body class="bg-gray-100 text-gray-800 font-sans leading-normal tracking-normal antialiased flex justify-center items-center py-10">
+    
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl">
+      <div class="flex items-center justify-between mb-6 border-b pb-4">
+        <h2 class="text-3xl font-extrabold text-gray-900 flex items-center">
+          <i class="fas fa-edit text-green-600 mr-3"></i>Modifier l'appel
+        </h2>
+        <a href="{{ url_for('appel.appel_home') }}" class="text-gray-500 hover:text-red-500 transition-colors duration-200" title="Annuler et retourner">
+            <i class="fas fa-times fa-2x"></i>
+        </a>
       </div>
-      <button type="button" onclick="ajouterChamp()">+ Ajouter un autre</button>
-      <br />
-      <button type="submit">✅ Enregistrer</button>
-    </form>
 
-    <a href="{{ url_for('appel.appel_home') }}">⬅ Annuler</a>
+      <form method="POST" class="space-y-6">
+        <div>
+          <label for="titre" class="block text-sm font-bold text-gray-700 mb-1">Titre de l'appel</label>
+          <input
+            type="text"
+            id="titre"
+            name="titre"
+            value="{{ appel.titre }}"
+          />
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm font-bold text-gray-700 mb-1">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+          >{{ appel.description }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="date_debut" class="block text-sm font-bold text-gray-700 mb-1">Date de début</label>
+            <div class="relative">
+                <input
+                    type="date"
+                    id="date_debut"
+                    name="date_debut"
+                    value="{{ appel.date_debut.strftime('%Y-%m-%d') }}"
+                    class="pr-10"
+                />
+                <i class="fas fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+          </div>
+          <div>
+            <label for="date_fin" class="block text-sm font-bold text-gray-700 mb-1">Date de fin</label>
+            <div class="relative">
+                <input
+                    type="date"
+                    id="date_fin"
+                    name="date_fin"
+                    value="{{ appel.date_fin.strftime('%Y-%m-%d') }}"
+                    class="pr-10"
+                />
+                <i class="fas fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-gray-800 mt-6 mb-3 border-b-2 border-gray-200 pb-2">Critères attendus</h3>
+          <div id="criteres-existants" class="space-y-4">
+            {% for critere in appel.criteres %}
+            <div class="flex items-center space-x-2">
+              <input
+                type="text"
+                name="criteres_existants_intitules"
+                value="{{ critere.intitule }}"
+                class="flex-grow"
+              />
+              <input
+                type="number"
+                name="criteres_existants_scores"
+                value="{{ critere.score }}"
+                class="w-24 px-4 py-2 border border-gray-300 rounded-lg text-center"
+                placeholder="Score"
+                step="0.01"
+              />
+              <input type="hidden" name="criteres_existants_ids" value="{{ critere.id }}" />
+              <button
+                type="button"
+                onclick="supprimerChamp(this)"
+                data-id="{{ critere.id }}"
+                class="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                title="Supprimer ce critère"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <input type="hidden" id="criteres-a-supprimer" name="criteres_a_supprimer" value="" />
+
+          <h4 class="text-md font-semibold text-gray-700 mt-6 mb-3">Ajouter de nouveaux critères :</h4>
+          <div id="nouveaux-criteres" class="space-y-4">
+            <div class="flex items-center space-x-2 critere-input">
+              <input
+                type="text"
+                name="criteres_nouveaux_intitules"
+                placeholder="Nouveau critère"
+                class="flex-grow"
+              />
+              <input
+                type="number"
+                name="criteres_nouveaux_scores"
+                placeholder="Score"
+                class="w-24 px-4 py-2 border border-gray-300 rounded-lg text-center"
+                step="0.01"
+              />
+              <button
+                type="button"
+                onclick="ajouterChamp(this)"
+                class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-200 transition-colors duration-200 flex items-center"
+              >
+                <i class="fas fa-plus mr-2"></i>Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-green-600 text-white py-3 rounded-lg font-bold shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center space-x-2 mt-8"
+        >
+          <i class="fas fa-check-circle"></i>
+          <span>Enregistrer</span>
+        </button>
+      </form>
+    </div>
 
     <script>
       function ajouterChamp() {
         const div = document.getElementById("nouveaux-criteres");
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = "criteres_nouveaux";
-        input.placeholder = "Nouveau critère";
-        div.appendChild(document.createElement("br"));
-        div.appendChild(input);
+        const newDiv = document.createElement("div");
+        newDiv.className = "flex items-center space-x-2";
+        
+        const inputIntitule = document.createElement("input");
+        inputIntitule.type = "text";
+        inputIntitule.name = "criteres_nouveaux_intitules";
+        inputIntitule.placeholder = "Nouveau critère";
+        inputIntitule.className = "flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200";
+        
+        const inputScore = document.createElement("input");
+        inputScore.type = "number";
+        inputScore.name = "criteres_nouveaux_scores";
+        inputScore.placeholder = "Score";
+        inputScore.className = "w-24 px-4 py-2 border border-gray-300 rounded-lg text-center";
+        inputScore.step = "0.01";
+        
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.onclick = function() { newDiv.remove(); };
+        removeButton.className = "text-gray-400 hover:text-red-500 transition-colors duration-200";
+        const icon = document.createElement("i");
+        icon.className = "fas fa-trash-alt";
+        removeButton.appendChild(icon);
+
+        newDiv.appendChild(inputIntitule);
+        newDiv.appendChild(inputScore);
+        newDiv.appendChild(removeButton);
+
+        div.appendChild(newDiv);
+      }
+      
+      function supprimerChamp(element) {
+        const parentDiv = element.closest('.flex');
+        const critereId = element.getAttribute('data-id');
+        
+        if (critereId) {
+            const hiddenInput = document.getElementById('criteres-a-supprimer');
+            const currentIds = hiddenInput.value ? hiddenInput.value.split(',') : [];
+            if (!currentIds.includes(critereId)) {
+                currentIds.push(critereId);
+            }
+            hiddenInput.value = currentIds.join(',');
+        }
+        
+        parentDiv.remove();
       }
     </script>
   </body>

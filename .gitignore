@@ -1,0 +1,13 @@
+# Fichiers temporaires de Python
+__pycache__/
+*.pyc
+
+# Environnement virtuel
+venv/
+.venv/
+
+# Fichiers de macOS
+.DS_Store
+
+# Fichiers d'uploads volumineux ou sensibles
+app/static/uploads/

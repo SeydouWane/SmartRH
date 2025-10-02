@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='SmartRH.png') }}" />
+    <meta charset="UTF-8" />
+    <title>Tous les candidats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .card-transition {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-transition:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      }
+      .modal-overlay {
+          visibility: hidden;
+          opacity: 0;
+          transition: visibility 0s, opacity 0.3s linear;
+      }
+      .modal-overlay.open {
+          visibility: visible;
+          opacity: 1;
+      }
+    </style>
+  </head>
+  
+  <body class="bg-gray-50 text-gray-800 antialiased">
+    <header class="flex justify-between items-center px-8 py-4 bg-white shadow-lg sticky top-0 z-50 border-b border-gray-200">
+        <div class="flex items-center space-x-6">
+            <img src="{{ url_for('static', filename='SmartRH.png') }}" alt="Logo SmartRH" class="h-12 w-auto" />
+            <h1 class="text-2xl font-extrabold text-green-700 hidden lg:block">
+                ESPACE D’APPEL À CANDIDATURE
+            </h1>
+            <h1 class="text-2xl font-extrabold text-green-700 block lg:hidden">
+                SmartRH
+            </h1>
+        </div>
+
+        <nav class="hidden md:flex items-center space-x-8 text-gray-600">
+            <a href="{{ url_for('appel.appel_dashboard') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-home"></i>
+                <span class="font-medium">Accueil</span>
+            </a>
+            <a href="{{ url_for('appel.creer_appel') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-plus-circle"></i>
+                <span class="font-medium">Créer un appel</span>
+            </a>
+            <a href="{{ url_for('candidat.all_candidatures') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-users"></i>
+                <span class="font-medium">Tous les candidats</span>
+            </a>
+        </nav>
+
+        <div class="relative inline-block text-left" x-data="{ open: false }">
+            <div>
+                <button
+                    @click="open = !open"
+                    type="button"
+                    class="flex items-center space-x-3 px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors duration-200"
+                    id="menu-button"
+                    aria-expanded="true"
+                    aria-haspopup="true"
+                >
+                    <i class="fas fa-user-circle fa-lg"></i>
+                    <span class="font-semibold hidden sm:block">{{ current_user.prenom }} {{ current_user.nom }}</span>
+                    <i class="fas fa-chevron-down ml-2 text-sm hidden sm:block" :class="{ 'transform rotate-180': open }"></i>
+                </button>
+            </div>
+
+            <div
+                x-show="open"
+                @click.away="open = false"
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="menu-button"
+                tabindex="-1"
+            >
+                <div class="py-1" role="none">
+                    <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                        <p class="font-bold">{{ current_user.prenom }} {{ current_user.nom }}</p>
+                        <p class="text-xs text-gray-500">{{ current_user.entreprise }}</p>
+                    </div>
+                    
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" role="menuitem" tabindex="-1">
+                        <i class="fas fa-user mr-2"></i>Profil
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" role="menuitem" tabindex="-1">
+                        <i class="fas fa-cog mr-2"></i>Paramètres
+                    </a>
+                    <form method="POST" action="{{ url_for('auth.logout') }}" role="none">
+                        <button
+                            type="submit"
+                            class="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
+                            role="menuitem"
+                            tabindex="-1"
+                        >
+                            <i class="fas fa-sign-out-alt mr-2"></i>Se déconnecter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="container mx-auto mt-8 p-6">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-4xl font-extrabold text-gray-900 flex items-center space-x-3">
+            <i class="fas fa-users text-green-600"></i>
+            <span>Toutes les candidatures</span>
+        </h2>
+        <a
+          href="{{ url_for('appel.appel_dashboard') }}"
+          class="bg-gray-200 text-gray-700 px-5 py-2.5 rounded-full shadow-md font-bold hover:bg-gray-300 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+        >
+          <i class="fas fa-arrow-left"></i>
+          <span>Retour au dashboard</span>
+        </a>
+      </div>
+
+      <div class="bg-white p-8 rounded-xl shadow-xl mb-8">
+        <h3 class="text-2xl font-bold mb-6 text-gray-900">Rechercher & Filtrer</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <label for="filtre-appel" class="block text-sm font-medium text-gray-700 mb-2">Nom de l'appel</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <i class="fas fa-bullhorn text-gray-400"></i>
+              </div>
+              <select id="filtre-appel" class="mt-1 block w-full rounded-xl border-gray-300 pl-10 pr-4 py-3 shadow-sm focus:border-green-500 focus:ring-green-500 transition-colors duration-200">
+                <option value="">Tous les appels</option>
+                {% for appel in appels %}
+                <option value="{{ appel.titre }}">{{ appel.titre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="filtre-critere" class="block text-sm font-medium text-gray-700 mb-2">Critère</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <i class="fas fa-tag text-gray-400"></i>
+              </div>
+              <input type="text" id="filtre-critere" placeholder="Ex: Python, Django" class="mt-1 block w-full rounded-xl border-gray-300 pl-10 pr-4 py-3 shadow-sm focus:border-green-500 focus:ring-green-500 transition-colors duration-200"/>
+            </div>
+          </div>
+          <div>
+            <label for="filtre-email" class="block text-sm font-medium text-gray-700 mb-2">Email du candidat</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <i class="fas fa-envelope text-gray-400"></i>
+              </div>
+              <input type="email" id="filtre-email" placeholder="Ex: candidat@exemple.com" class="mt-1 block w-full rounded-xl border-gray-300 pl-10 pr-4 py-3 shadow-sm focus:border-green-500 focus:ring-green-500 transition-colors duration-200"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="mt-8 space-y-4">
+        {% for category, message in messages %}
+        <div
+          class="flex items-center p-5 rounded-xl shadow-lg text-sm {% if category == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}"
+          role="alert"
+        >
+          <div class="mr-3">
+            {% if category == 'success' %}
+            <i class="fas fa-check-circle fa-lg"></i>
+            {% else %}
+            <i class="fas fa-exclamation-triangle fa-lg"></i>
+            {% endif %}
+          </div>
+          <div>
+            <strong class="font-bold">{{ message }}</strong>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      <div class="overflow-x-auto bg-white rounded-xl shadow-xl">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Nom Candidat
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Appel Postulé
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Score
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for candidature in candidatures %}
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <a href="#" 
+                   class="text-blue-600 hover:underline cursor-pointer"
+                   onclick="showModal('{{ candidature.candidat.nom }}', '{{ candidature.candidat.prenom }}', '{{ candidature.candidat.email }}', '{{ candidature.candidat.telephone or '' }}', '{{ candidature.candidat.adresse or '' }}', '{{ candidature.candidat.education or '' }}', '{{ candidature.candidat.competences or '' }}', '{{ candidature.score }}', '{{ candidature.candidat.cv_filename }}')">
+                    {{ candidature.candidat.nom }} {{ candidature.candidat.prenom }}
+                </a>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ candidature.candidat.email }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ candidature.appel_titre }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {{ '%.2f' % candidature.score }} / 100
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <a href="#" 
+                   class="text-green-600 hover:text-green-800 transition-transform duration-150 hover:scale-110" 
+                   title="Voir le profil complet"
+                   onclick="event.preventDefault(); showModal('{{ candidature.candidat.nom }}', '{{ candidature.candidat.prenom }}', '{{ candidature.candidat.email }}', '{{ candidature.candidat.telephone or '' }}', '{{ candidature.candidat.adresse or '' }}', '{{ candidature.candidat.education or '' }}', '{{ candidature.candidat.competences or '' }}', '{{ candidature.score }}', '{{ candidature.candidat.cv_filename }}')">
+                  <i class="fas fa-eye fa-lg"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <div id="candidatModal" class="modal-overlay fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-2xl mx-auto transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-900" id="modal-candidat-name"></h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+            
+            <div class="mt-6 text-gray-700">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="font-semibold text-gray-900">Email :</p>
+                        <p id="modal-candidat-email" class="mt-1"></p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Téléphone :</p>
+                        <p id="modal-candidat-phone" class="mt-1"></p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="font-semibold text-gray-900">Adresse :</p>
+                        <p id="modal-candidat-address" class="mt-1"></p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Score :</p>
+                        <p id="modal-candidat-score" class="mt-1 font-bold text-lg text-green-600"></p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-900">Formation :</p>
+                    <p id="modal-candidat-education" class="mt-1 text-sm text-gray-600"></p>
+                </div>
+
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-900">Compétences clés :</p>
+                    <p id="modal-candidat-skills" class="mt-1 text-sm text-gray-600"></p>
+                </div>
+                
+                <div class="flex justify-end mt-6">
+                    <a id="modal-candidat-cv" href="#" target="_blank" class="bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-download"></i>
+                        <span>Télécharger le CV</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        function appliquerFiltres() {
+            const appelTitre = document.getElementById('filtre-appel').value.toLowerCase();
+            const email = document.getElementById('filtre-email').value.toLowerCase();
+            const lignes = document.querySelectorAll('tbody tr');
+
+            lignes.forEach(ligne => {
+                const nomAppel = ligne.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const emailCandidat = ligne.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                
+                const matchAppel = !appelTitre || nomAppel.includes(appelTitre);
+                const matchEmail = !email || emailCandidat.includes(email);
+
+                if (matchAppel && matchEmail) {
+                    ligne.style.display = '';
+                } else {
+                    ligne.style.display = 'none';
+                }
+            });
+        }
+
+        // Applique les filtres automatiquement à chaque changement de valeur
+        document.getElementById('filtre-appel').addEventListener('change', appliquerFiltres);
+        document.getElementById('filtre-email').addEventListener('input', appliquerFiltres);
+
+        // Applique les filtres au chargement initial de la page
+        window.onload = appliquerFiltres;
+
+        // Fonctions pour gérer la modale
+        function showModal(nom, prenom, email, telephone, adresse, education, competences, score, cv_filename) {
+            const modal = document.getElementById('candidatModal');
+            document.getElementById('modal-candidat-name').textContent = prenom + ' ' + nom;
+            document.getElementById('modal-candidat-email').textContent = email;
+            document.getElementById('modal-candidat-phone').textContent = telephone || '-';
+            document.getElementById('modal-candidat-address').textContent = adresse || '-';
+            document.getElementById('modal-candidat-score').textContent = score + ' / 100';
+            document.getElementById('modal-candidat-education').textContent = education || 'Non spécifié';
+            document.getElementById('modal-candidat-skills').textContent = competences || 'Non spécifié';
+            
+            const cvLink = document.getElementById('modal-candidat-cv');
+            cvLink.href = '{{ url_for('static', filename='uploads/') }}' + cv_filename;
+
+            modal.classList.add('open');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('candidatModal');
+            modal.classList.remove('open');
+        }
+        
+        // Fermer la modale en cliquant en dehors
+        window.onclick = function(event) {
+            const modal = document.getElementById('candidatModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+  </body>
+</html>

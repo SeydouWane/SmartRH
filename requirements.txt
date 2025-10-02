@@ -1,3 +1,4 @@
+# requirements.txt
 Flask
 Flask-SQLAlchemy
 Flask-Login
@@ -6,3 +7,6 @@ spacy
 pdfplumber
 fpdf
 pandas
+fitz
+PyMuPDF
+docx2txt

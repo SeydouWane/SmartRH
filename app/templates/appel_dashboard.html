@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='SmartRH.png') }}" />
     <meta charset="UTF-8" />
     <title>Tableau de bord RH</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -8,148 +9,309 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Styles personnalisés pour mieux intégrer les icônes et les champs de formulaire */
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-200;
+      }
+
+      /* Cache la flèche sur les champs de type date */
+      input[type="date"]::-webkit-inner-spin-button,
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
+      }
+
+      /* Transitions sur les cartes et les liens */
+      .card-transition {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-transition:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+    </style>
   </head>
-  <body class="bg-gray-50 text-gray-800">
-    <!-- Barre supérieure -->
-    <header class="flex justify-between items-center px-6 py-4 bg-white shadow">
-      <h1 class="text-xl font-bold text-green-700">
-        ESPACE D’APPEL À CANDIDATURE
-      </h1>
-      <form method="POST" action="{{ url_for('auth.logout') }}">
-        <button
-          type="submit"
-          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Se déconnecter
-        </button>
-      </form>
+  
+  <body class="bg-gray-100 text-gray-800 antialiased">
+    <header class="flex justify-between items-center px-8 py-4 bg-white shadow-lg sticky top-0 z-50 border-b border-gray-200">
+        <div class="flex items-center space-x-6">
+            <img src="{{ url_for('static', filename='SmartRH.png') }}" alt="Logo SmartRH" class="h-12 w-auto" />
+            
+            <h1 class="text-2xl font-extrabold text-green-700 hidden lg:block">
+                ESPACE D’APPEL À CANDIDATURE
+            </h1>
+        </div>
+
+        <nav class="hidden md:flex items-center space-x-8 text-gray-600">
+            <a href="#" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-home"></i>
+                <span class="font-medium">Accueil</span>
+            </a>
+            <a href="{{ url_for('appel.creer_appel') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-plus-circle"></i>
+                <span class="font-medium">Créer un appel</span>
+            </a>
+            <a href="{{ url_for('candidat.all_candidatures') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-users"></i>
+                <span class="font-medium">Tous les candidats</span>
+            </a>
+        </nav>
+
+        <div class="relative inline-block text-left" x-data="{ open: false }">
+            <div>
+                <button
+                    @click="open = !open"
+                    type="button"
+                    class="flex items-center space-x-3 px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors duration-200"
+                    id="menu-button"
+                    aria-expanded="true"
+                    aria-haspopup="true"
+                >
+                    <i class="fas fa-user-circle fa-lg"></i>
+                    <span class="font-semibold hidden sm:block">{{ current_user.prenom }} {{ current_user.nom }}</span>
+                    <i class="fas fa-chevron-down ml-2 text-sm hidden sm:block" :class="{ 'transform rotate-180': open }"></i>
+                </button>
+            </div>
+
+            <div
+                x-show="open"
+                @click.away="open = false"
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="menu-button"
+                tabindex="-1"
+            >
+                <div class="py-1" role="none">
+                    <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                        <p class="font-bold">{{ current_user.prenom }} {{ current_user.nom }}</p>
+                        <p class="text-xs text-gray-500">{{ current_user.entreprise }}</p>
+                    </div>
+                    
+                    <a href="{{ url_for('main.profil') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" role="menuitem" tabindex="-1">
+                        <i class="fas fa-user mr-2"></i>Profil
+                    </a>
+                    <a href="{{ url_for('main.parametres') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" role="menuitem" tabindex="-1">
+                        <i class="fas fa-cog mr-2"></i>Paramètres
+                    </a>
+                    <form method="POST" action="{{ url_for('auth.logout') }}" role="none">
+                        <button
+                            type="submit"
+                            class="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
+                            role="menuitem"
+                            tabindex="-1"
+                        >
+                            <i class="fas fa-sign-out-alt mr-2"></i>Se déconnecter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <main class="p-6">
-      <h2 class="text-lg mb-4">
-        Bienvenue, {{ current_user.nom }} {{ current_user.prenom }}
+    <main class="container mx-auto mt-8 p-6">
+      <h2 class="text-3xl font-extrabold text-gray-900 mb-2">
+        Bienvenue, <span class="text-green-600">{{ current_user.prenom }}</span>
       </h2>
+      <p class="text-gray-600 text-lg mb-6">Explorez et gérez vos appels à candidatures.</p>
 
-      <div class="mb-6">
-        <a
-          href="{{ url_for('appel.creer_appel') }}"
-          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          + Créer un nouvel appel
-        </a>
-      </div>
-
-      <!-- Filtres -->
-      <div class="space-y-4 mb-6">
-        <h3 class="text-md font-semibold">Rechercher</h3>
-        <form id="filtre-form" class="flex flex-wrap gap-4">
-          <input
-            type="text"
-            id="filtre-titre"
-            placeholder="🔍 Nom appel"
-            class="border px-3 py-2 rounded w-48"
-          />
-          <input
-            type="date"
-            id="filtre-date"
-            class="border px-3 py-2 rounded w-48"
-          />
-          <input
-            type="text"
-            id="filtre-critere"
-            placeholder="📌 Critère"
-            class="border px-3 py-2 rounded w-48"
-          />
-          <button
-            type="submit"
-            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Rechercher
-          </button>
-        </form>
-
-        <div class="flex gap-4">
-          <button
-            onclick="filtrerParStatut('tous')"
-            class="bg-green-600 text-white px-4 py-1 rounded"
-          >
-            Tous
-          </button>
-          <button
-            onclick="filtrerParStatut('encours')"
-            class="bg-orange-500 text-white px-4 py-1 rounded"
-          >
-            En cours
-          </button>
-          <button
-            onclick="filtrerParStatut('termines')"
-            class="bg-gray-500 text-white px-4 py-1 rounded"
-          >
-            Terminés
-          </button>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-orange-500 flex justify-between items-center card-transition">
+          <div>
+            <p class="text-gray-500 text-sm font-semibold">Appels en cours</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ appels_en_cours }}</p>
+          </div>
+          <div class="p-3 bg-orange-100 rounded-full text-orange-600">
+            <i class="fas fa-hourglass-half fa-2x"></i>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-green-500 flex justify-between items-center card-transition">
+          <div>
+            <p class="text-gray-500 text-sm font-semibold">Candidatures reçues</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ candidatures_recues }}</p>
+          </div>
+          <div class="p-3 bg-green-100 rounded-full text-green-600">
+            <i class="fas fa-users fa-2x"></i>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-gray-500 flex justify-between items-center card-transition">
+          <div>
+            <p class="text-gray-500 text-sm font-semibold">Appels terminés</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ appels_termines }}</p>
+          </div>
+          <div class="p-3 bg-gray-200 rounded-full text-gray-600">
+            <i class="fas fa-check-circle fa-2x"></i>
+          </div>
         </div>
       </div>
 
-      <!-- Tableau -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full bg-white shadow rounded">
-          <thead class="bg-green-100 text-green-800 font-semibold">
+      <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <a
+            href="{{ url_for('appel.creer_appel') }}"
+            class="w-full sm:w-auto bg-green-600 text-white px-6 py-3 rounded-full shadow-lg font-bold hover:bg-green-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            <span>Créer un nouvel appel</span>
+          </a>
+          
+          <a
+            href="{{ url_for('candidat.all_candidatures') }}"
+            class="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg font-bold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+          >
+            <i class="fas fa-users mr-2"></i>
+            <span>Voir tous les candidats</span>
+          </a>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-xl mb-6">
+        <h3 class="text-2xl font-bold mb-4 text-gray-900">Filtrer les appels</h3>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <div>
+            <label for="filtre-titre" class="block text-sm font-medium text-gray-700">Nom de l'appel</label>
+            <div class="relative mt-1 rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input
+                  type="text"
+                  id="filtre-titre"
+                  placeholder="Ex: Data Analyst"
+                  class="block w-full rounded-md border-gray-300 pl-10 focus:border-green-500 focus:ring-green-500 sm:text-sm p-2"
+                />
+            </div>
+          </div>
+          <div>
+            <label for="filtre-date" class="block text-sm font-medium text-gray-700">Date de fin</label>
+            <div class="relative mt-1 rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                </div>
+                <input
+                  type="date"
+                  id="filtre-date"
+                  class="block w-full rounded-md border-gray-300 pl-10 focus:border-green-500 focus:ring-green-500 sm:text-sm p-2"
+                />
+            </div>
+          </div>
+          <div class="lg:col-span-2">
+            <label for="filtre-critere" class="block text-sm font-medium text-gray-700">Critère</label>
+            <div class="relative mt-1 rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-tag text-gray-400"></i>
+                </div>
+                <input
+                  type="text"
+                  id="filtre-critere"
+                  placeholder="Ex: Python"
+                  class="block w-full rounded-md border-gray-300 pl-10 focus:border-green-500 focus:ring-green-500 sm:text-sm p-2"
+                />
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+            <button
+              onclick="filtrerParStatut('tous')"
+              class="px-5 py-2 rounded-full font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
+            >
+              Tous
+            </button>
+            <button
+              onclick="filtrerParStatut('encours')"
+              class="px-5 py-2 rounded-full font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-colors duration-200"
+            >
+              En cours
+            </button>
+            <button
+              onclick="filtrerParStatut('termines')"
+              class="px-5 py-2 rounded-full font-semibold text-white bg-gray-500 hover:bg-gray-600 transition-colors duration-200"
+            >
+              Terminés
+            </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto bg-white rounded-xl shadow-xl">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-2">Nom Appel</th>
-              <th class="px-4 py-2">Date Début</th>
-              <th class="px-4 py-2">Date Fin</th>
-              <th class="px-4 py-2">Description</th>
-              <th class="px-4 py-2">Critères</th>
-              <th class="px-4 py-2">Lien</th>
-              <th class="px-4 py-2">Actions</th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Nom Appel
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Date Début
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Date Fin
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                Description
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                Critères
+              </th>
+              <th scope="col" class="px-6 py-4 text-center text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Lien
+              </th>
+              <th scope="col" class="px-6 py-4 text-center text-xs font-extrabold text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody class="text-center">
+          <tbody class="bg-white divide-y divide-gray-200">
             {% for appel in appels %}
-            <tr class="border-b hover:bg-gray-50">
-              <td class="px-4 py-2">{{ appel.titre }}</td>
-              <td class="px-4 py-2">
-                {{ appel.date_debut.strftime('%d/%m/%Y') }}
-              </td>
-              <td class="px-4 py-2">
-                {{ appel.date_fin.strftime('%d/%m/%Y') }}
-              </td>
-              <td class="px-4 py-2">{{ appel.description[:100]|safe }}...</td>
-              <td class="px-4 py-2">
-                <ul class="text-left">
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ appel.titre }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ appel.date_debut.strftime('%d/%m/%Y') }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ appel.date_fin.strftime('%d/%m/%Y') }}</td>
+              <td class="px-6 py-4 text-sm text-gray-500 max-w-xs overflow-hidden text-ellipsis hidden lg:table-cell">{{ appel.description|truncate(100, True)|safe }}</td>
+              <td class="px-6 py-4 text-sm text-gray-500 hidden sm:table-cell">
+                <ul class="list-disc list-inside space-y-1">
                   {% for critere in appel.criteres %}
-                  <li>• {{ critere.intitule }}</li>
+                  <li class="flex items-start">
+                    <span class="mr-1 text-green-600">•</span>
+                    {{ critere.intitule }}
+                    {% if critere.score is not none %}
+                      <span class="ml-1 text-xs text-gray-500">({{ critere.score }})</span>
+                    {% endif %}
+                  </li>
                   {% endfor %}
                 </ul>
               </td>
-              <td class="px-4 py-2">
-                <a
-                  href="{{ appel.lien_formulaire }}"
-                  class="text-green-600 underline"
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+              <a href="{{ url_for('candidat.afficher_formulaire', lien=appel.lien_formulaire) }}"
+                  class="text-green-600 hover:text-green-800 underline transition-colors duration-200"
                   target="_blank"
-                  >Voir formulaire</a
-                >
-              </td>
-              <td class="px-4 py-2 flex items-center justify-center space-x-3">
-                <a
-                  href="{{ url_for('candidat.list_candidatures', appel_id=appel.id) }}"
-                  title="Voir"
-                >
-                  <i class="fas fa-eye text-green-500 hover:scale-110"></i>
-                </a>
-                <a
-                  href="{{ url_for('appel.edit_appel', appel_id=appel.id) }}"
-                  title="Modifier"
-                >
-                  <i class="fas fa-edit text-yellow-500 hover:scale-110"></i>
-                </a>
-                <a
-                  href="#"
-                  onclick="confirmerSuppression({{ appel.id }})"
-                  title="Supprimer"
-                >
-                  <i class="fas fa-trash text-red-600 hover:scale-110"></i>
-                </a>
+                  title="Voir le formulaire de candidature"
+              >Voir</a>
+            </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                <div class="flex items-center justify-center space-x-4">
+                  <a href="{{ url_for('candidat.list_candidatures', appel_id=appel.id) }}" title="Voir les candidatures" aria-label="Voir les candidatures" class="text-gray-500 hover:text-green-600 transition-transform duration-150 hover:scale-110">
+                      <i class="fas fa-eye fa-lg"></i>
+                  </a>
+                  <a href="{{ url_for('appel.edit_appel', appel_id=appel.id) }}" title="Modifier l'appel" aria-label="Modifier l'appel" class="text-gray-500 hover:text-yellow-500 transition-transform duration-150 hover:scale-110">
+                    <i class="fas fa-edit fa-lg"></i>
+                  </a>
+                    <a href="#" 
+                        onclick="event.preventDefault(); confirmerSuppression('{{ url_for('appel.delete_appel', appel_id=appel.id) }}');" 
+                        title="Supprimer l'appel" 
+                        aria-label="Supprimer l'appel"
+                        class="text-gray-500 hover:text-red-600 transition-transform duration-150 hover:scale-110">
+                        <i class="fas fa-trash fa-lg"></i>
+                    </a>
+                </div>
               </td>
             </tr>
             {% endfor %}
@@ -158,98 +320,81 @@
       </div>
     </main>
 
-    <!-- Modal suppression -->
-    <div
-      id="confirmationModal"
-      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
-    >
-      <div class="bg-white p-6 rounded shadow-lg text-center">
-        <p class="mb-4 text-lg">
-          ❗ Êtes-vous sûr de vouloir supprimer cet appel ?
-        </p>
-        <form id="deleteForm" method="POST">
-          <button
-            type="submit"
-            class="bg-red-600 text-white px-4 py-2 rounded mr-2"
-          >
-            Oui, Supprimer
-          </button>
-          <button
-            type="button"
-            onclick="fermerModal()"
-            class="bg-gray-300 px-4 py-2 rounded"
-          >
-            Annuler
-          </button>
-        </form>
+    <div id="confirmationModal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center hidden z-50 transition-opacity duration-300">
+      <div class="relative mx-auto p-8 border w-96 shadow-xl rounded-xl bg-white text-center">
+        <div class="mt-3 text-center">
+          <p class="text-3xl font-extrabold text-red-600 mb-4">❗ Attention</p>
+          <p class="text-gray-800 text-lg mb-6">
+            Êtes-vous sûr de vouloir supprimer cet appel ? Cette action est irréversible.
+          </p>
+          <div class="flex justify-center items-center space-x-4 px-4 py-3">
+            <button
+              type="button"
+              onclick="fermerModal()"
+              class="px-6 py-3 bg-gray-300 text-gray-700 text-base font-medium rounded-full w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200"
+            >
+              Annuler
+            </button>
+            <form id="deleteForm" method="POST" class="inline">
+              <button
+                type="submit"
+                class="px-6 py-3 bg-red-600 text-white text-base font-medium rounded-full w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+              >
+                Oui, Supprimer
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-
+    
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
       function filtrerTableau() {
-        const titre = document
-          .getElementById("filtre-titre")
-          .value.toLowerCase();
+        const titre = document.getElementById("filtre-titre").value.toLowerCase();
         const date = document.getElementById("filtre-date").value;
-        const critere = document
-          .getElementById("filtre-critere")
-          .value.toLowerCase();
+        const critere = document.getElementById("filtre-critere").value.toLowerCase();
 
         const rows = document.querySelectorAll("tbody tr");
 
         rows.forEach((row) => {
-          const colTitre = row
-            .querySelector("td:nth-child(1)")
-            .textContent.toLowerCase();
-          const colDate = row.querySelector("td:nth-child(2)").textContent;
-          const colCrit = row
-            .querySelector("td:nth-child(5)")
-            .textContent.toLowerCase();
+          const colTitre = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
+          const colDate = row.querySelector("td:nth-child(3)").textContent.trim();
+          const colCrit = row.querySelector("td:nth-child(5)").textContent.toLowerCase();
 
           const matchTitre = colTitre.includes(titre);
           const matchDate = !date || colDate === formatDate(date);
           const matchCrit = colCrit.includes(critere);
 
-          row.style.display =
-            matchTitre && matchDate && matchCrit ? "" : "none";
+          row.style.display = matchTitre && matchDate && matchCrit ? "" : "none";
         });
       }
 
       function formatDate(inputDate) {
         const date = new Date(inputDate);
-        return date.toLocaleDateString("fr-FR");
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Les mois sont basés sur l'index 0
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
       }
-
-      document
-        .getElementById("filtre-titre")
-        .addEventListener("input", filtrerTableau);
-      document
-        .getElementById("filtre-date")
-        .addEventListener("input", filtrerTableau);
-      document
-        .getElementById("filtre-critere")
-        .addEventListener("input", filtrerTableau);
+      
+      document.getElementById("filtre-titre").addEventListener("input", filtrerTableau);
+      document.getElementById("filtre-date").addEventListener("change", filtrerTableau);
+      document.getElementById("filtre-critere").addEventListener("input", filtrerTableau);
     </script>
     <script>
-      function confirmerSuppression(appelId) {
+      function confirmerSuppression(deleteUrl) {
         const modal = document.getElementById("confirmationModal");
         const form = document.getElementById("deleteForm");
-
-        // Assure que la route POST pour la suppression est bien définie
-        form.action = `/appel/${appelId}/delete`;
-
-        // Affiche le modal
+        form.action = deleteUrl;
         modal.classList.remove("hidden");
-        modal.classList.add("flex");
       }
 
       function fermerModal() {
         const modal = document.getElementById("confirmationModal");
-        modal.classList.remove("flex");
         modal.classList.add("hidden");
       }
 
-      // Fermer le modal si clic à l'extérieur
       window.onclick = function (event) {
         const modal = document.getElementById("confirmationModal");
         if (event.target === modal) {
@@ -261,13 +406,32 @@
       function filtrerParStatut(statut) {
         const rows = document.querySelectorAll("tbody tr");
         const aujourdHui = new Date();
+        aujourdHui.setHours(0, 0, 0, 0);
+
+        // Gérer l'état actif des boutons
+        document.querySelectorAll('button[onclick^="filtrerParStatut"]').forEach(btn => {
+            btn.classList.remove('bg-green-700', 'bg-orange-600', 'bg-gray-600');
+            if (btn.textContent.trim() === 'Tous') btn.classList.add('bg-green-600');
+            else if (btn.textContent.trim() === 'En cours') btn.classList.add('bg-orange-500');
+            else if (btn.textContent.trim() === 'Terminés') btn.classList.add('bg-gray-500');
+        });
+        const boutonActif = document.querySelector(`[onclick="filtrerParStatut('${statut}')"]`);
+        if (statut === 'tous') {
+            boutonActif.classList.remove('bg-green-600');
+            boutonActif.classList.add('bg-green-700');
+        } else if (statut === 'encours') {
+            boutonActif.classList.remove('bg-orange-500');
+            boutonActif.classList.add('bg-orange-600');
+        } else if (statut === 'termines') {
+            boutonActif.classList.remove('bg-gray-500');
+            boutonActif.classList.add('bg-gray-600');
+        }
 
         rows.forEach((row) => {
-          const dateFinTexte = row
-            .querySelector("td:nth-child(3)")
-            .textContent.trim();
+          const dateFinTexte = row.querySelector("td:nth-child(3)").textContent.trim();
           const [jour, mois, annee] = dateFinTexte.split("/").map(Number);
           const dateFin = new Date(annee, mois - 1, jour);
+          dateFin.setHours(0, 0, 0, 0);
 
           let afficher = true;
 
@@ -280,6 +444,8 @@
           row.style.display = statut === "tous" || afficher ? "" : "none";
         });
       }
+
+      window.onload = () => filtrerParStatut('tous');
     </script>
   </body>
 </html>

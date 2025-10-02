@@ -1,16 +1,112 @@
 <!DOCTYPE html>
-<html>
-<head><title>Inscription</title></head>
-<body>
-    <h2>Créer un compte</h2>
-    <form method="POST">
-        <input type="text" name="nom" placeholder="Nom" required><br>
-        <input type="text" name="prenom" placeholder="Prénom" required><br>
-        <input type="text" name="entreprise" placeholder="Entreprise" required><br>
-        <input type="email" name="email" placeholder="Email professionnel" required><br>
-        <input type="password" name="password" placeholder="Mot de passe" required><br>
-        <button type="submit">S'inscrire</button>
-    </form>
-    <p>Déjà inscrit ? <a href="{{ url_for('auth.login') }}">Connexion</a></p>
-</body>
+<html lang="fr">
+  <head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='SmartRH.png') }}" />
+    <meta charset="UTF-8" />
+    <title>Inscription</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 text-gray-800 font-sans leading-normal tracking-normal antialiased flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+      <div class="text-center mb-6">
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Créer un compte</h2>
+        <p class="text-gray-500">Rejoignez-nous pour gérer vos appels à candidature</p>
+      </div>
+
+      <form method="POST" class="space-y-4">
+        <div>
+          <label for="nom" class="sr-only">Nom</label>
+          <div class="relative">
+            <i class="fas fa-user-tag text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input
+              type="text"
+              id="nom"
+              name="nom"
+              placeholder="Nom"
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="prenom" class="sr-only">Prénom</label>
+          <div class="relative">
+            <i class="fas fa-user text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input
+              type="text"
+              id="prenom"
+              name="prenom"
+              placeholder="Prénom"
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+              required
+            />
+          </div>
+        </div>
+        
+        <div>
+            <label for="entreprise" class="sr-only">Entreprise</label>
+            <div class="relative">
+              <i class="fas fa-building text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input
+                type="text"
+                id="entreprise"
+                name="entreprise"
+                placeholder="Entreprise"
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                required
+              />
+            </div>
+          </div>
+
+        <div>
+          <label for="email" class="sr-only">Email professionnel</label>
+          <div class="relative">
+            <i class="fas fa-envelope text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Email professionnel"
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="sr-only">Mot de passe</label>
+          <div class="relative">
+            <i class="fas fa-lock text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Mot de passe"
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+              required
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-green-600 text-white py-2 rounded-lg font-bold shadow-lg hover:bg-green-700 transition-colors duration-200"
+        >
+          S'inscrire
+        </button>
+      </form>
+      
+      <p class="mt-6 text-center text-sm text-gray-500">
+        Déjà inscrit ?
+        <a href="{{ url_for('auth.login') }}" class="font-semibold text-green-600 hover:text-green-700 underline transition-colors duration-200">
+          Connexion
+        </a>
+      </p>
+    </div>
+  </body>
 </html>

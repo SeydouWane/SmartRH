@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='SmartRH.png') }}" />
+    <meta charset="UTF-8" />
+    <title>Profil - {{ current_user.prenom }} {{ current_user.nom }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+  </head>
+  
+  <body class="bg-gray-100 text-gray-800 antialiased">
+    <header class="flex justify-between items-center px-8 py-4 bg-white shadow-lg sticky top-0 z-50 border-b border-gray-200">
+        <div class="flex items-center space-x-6">
+            <img src="{{ url_for('static', filename='SmartRH.png') }}" alt="Logo SmartRH" class="h-12 w-auto" />
+            
+            <h1 class="text-2xl font-extrabold text-green-700 hidden lg:block">
+                ESPACE D’APPEL À CANDIDATURE
+            </h1>
+        </div>
+
+        <nav class="hidden md:flex items-center space-x-8 text-gray-600">
+            <a href="{{ url_for('main.dashboard') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-home"></i>
+                <span class="font-medium">Accueil</span>
+            </a>
+            <a href="{{ url_for('appel.creer_appel') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-plus-circle"></i>
+                <span class="font-medium">Créer un appel</span>
+            </a>
+            <a href="{{ url_for('candidat.all_candidatures') }}" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <i class="fas fa-users"></i>
+                <span class="font-medium">Tous les candidats</span>
+            </a>
+        </nav>
+
+        <div class="relative inline-block text-left" x-data="{ open: false }">
+            <div>
+                <button
+                    @click="open = !open"
+                    type="button"
+                    class="flex items-center space-x-3 px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors duration-200"
+                    id="menu-button"
+                    aria-expanded="true"
+                    aria-haspopup="true"
+                >
+                    <i class="fas fa-user-circle fa-lg"></i>
+                    <span class="font-semibold hidden sm:block">{{ current_user.prenom }} {{ current_user.nom }}</span>
+                    <i class="fas fa-chevron-down ml-2 text-sm hidden sm:block" :class="{ 'transform rotate-180': open }"></i>
+                </button>
+            </div>
+
+            <div
+                x-show="open"
+                @click.away="open = false"
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="menu-button"
+                tabindex="-1"
+            >
+                <div class="py-1" role="none">
+                    <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                        <p class="font-bold">{{ current_user.prenom }} {{ current_user.nom }}</p>
+                        <p class="text-xs text-gray-500">{{ current_user.entreprise }}</p>
+                    </div>
+                    
+                    <a href="{{ url_for('main.profil') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" role="menuitem" tabindex="-1">
+                        <i class="fas fa-user mr-2"></i>Profil
+                    </a>
+                    <a href="{{ url_for('main.parametres') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" role="menuitem" tabindex="-1">
+                        <i class="fas fa-cog mr-2"></i>Paramètres
+                    </a>
+                    <form method="POST" action="{{ url_for('auth.logout') }}" role="none">
+                        <button
+                            type="submit"
+                            class="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
+                            role="menuitem"
+                            tabindex="-1"
+                        >
+                            <i class="fas fa-sign-out-alt mr-2"></i>Se déconnecter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-8 p-6">
+      <div class="bg-white p-8 rounded-xl shadow-xl">
+        <div class="flex items-center space-x-4 mb-8">
+            <i class="fas fa-user-circle text-green-600 fa-3x"></i>
+            <div>
+                <h2 class="text-4xl font-extrabold text-gray-900">Mon Profil</h2>
+                <p class="text-gray-500">Informations de base et rôle de l'utilisateur.</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div>
+                    <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Nom complet</p>
+                    <p class="mt-1 text-lg font-medium text-gray-900">{{ current_user.prenom }} {{ current_user.nom }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Email</p>
+                    <p class="mt-1 text-lg font-medium text-gray-900">{{ current_user.email }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Rôle</p>
+                    <p class="mt-1 text-lg font-medium text-gray-900">{{ current_user.role }}</p>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Entreprise</p>
+                    <p class="mt-1 text-lg font-medium text-gray-900">{{ current_user.entreprise }}</p>
+                </div>
+               
+            </div>
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-gray-200 flex justify-end">
+            <a
+              href="{{ url_for('main.dashboard') }}"
+              class="bg-gray-200 text-gray-700 px-5 py-2.5 rounded-full shadow-md font-bold hover:bg-gray-300 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+            >
+              <i class="fas fa-arrow-left"></i>
+              <span>Retour au dashboard</span>
+            </a>
+        </div>
+      </div>
+    </main>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+  <head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='SmartRH.png') }}" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bienvenue sur SmartRH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+      }
+      .hero-bg {
+        background-image: url('{{ url_for('static', filename='hero-background.svg') }}');
+        background-size: cover;
+        background-position: center;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800 font-sans leading-normal tracking-normal antialiased">
+    
+    <header class="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
+      <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <img
+            src="{{ url_for('static', filename='SmartRH.png') }}"
+            alt="Logo SmartRH"
+            class="h-12 w-auto"
+          />
+          <span class="text-2xl font-extrabold text-green-700">SmartRH</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a
+            href="#accueil"
+            class="text-gray-600 hover:text-green-700 transition-colors duration-200"
+            >Accueil</a
+          >
+          <a
+            href="#fonctionnalites"
+            class="text-gray-600 hover:text-green-700 transition-colors duration-200"
+            >Fonctionnalités</a
+          >
+          <a
+              href="#contact-section"
+              class="text-gray-600 hover:text-green-700 transition-colors duration-200"
+              >Contact</a
+            >
+          {% if not current_user.is_authenticated %}
+          <a
+            href="{{ url_for('auth.login') }}"
+            class="bg-green-600 text-white px-5 py-2 rounded-full shadow-lg font-bold hover:bg-green-700 transition-all duration-300"
+            >Connexion</a
+          >
+          {% else %}
+          <a
+            href="{{ url_for('appel.appel_home') }}"
+            class="bg-blue-600 text-white px-5 py-2 rounded-full shadow-lg font-bold hover:bg-blue-700 transition-all duration-300"
+            >Tableau de bord</a
+          >
+          {% endif %}
+        </div>
+      </nav>
+    </header>
+
+    <main id="accueil" class="pt-24 bg-gradient-to-br from-gray-50 to-green-100 hero-bg">
+      <div class="container mx-auto p-6 flex flex-col lg:flex-row items-center justify-between min-h-[calc(100vh-6rem)]">
+        <div class="text-center lg:text-left lg:w-1/2 mb-12 lg:mb-0 animate-fadeInUp">
+          <h1 class="text-4xl sm:text-6xl font-extrabold text-gray-900 leading-tight mb-4">
+            Optimisez votre recrutement avec
+            <span class="text-green-700 block mt-2">SmartRH</span>
+          </h1>
+          <p class="text-lg sm:text-xl text-gray-700 max-w-xl mx-auto lg:mx-0 mb-6">
+            La plateforme intelligente pour la gestion et l'analyse de vos candidatures, boostée par l'IA.
+          </p>
+          {% if not current_user.is_authenticated %}
+          <a
+            href="{{ url_for('auth.login') }}"
+            class="inline-block bg-green-600 text-white px-8 py-3 rounded-full shadow-lg font-bold text-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
+          >
+            Commencer
+          </a>
+          {% else %}
+          <a
+            href="{{ url_for('appel.appel_home') }}"
+            class="inline-block bg-blue-600 text-white px-8 py-3 rounded-full shadow-lg font-bold text-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+          >
+            Aller au tableau de bord
+          </a>
+          {% endif %}
+        </div>
+        <div class="lg:w-1/2 flex justify-center animate-fadeInUp" style="animation-delay: 0.2s;">
+          <img
+            src="{{ url_for('static', filename='SmartRH.png') }}"
+            alt="Dashboard de SmartRH avec des graphiques et des analyses de données"
+            class="transform transition-transform duration-500 hover:scale-105"
+          />
+        </div>
+      </div>
+    </main>
+    
+    <section id="fonctionnalites" class="py-20 bg-white">
+      <div class="container mx-auto p-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4 animate-fadeInUp">Fonctionnalités clés</h2>
+        <p class="text-gray-600 text-lg mb-12 animate-fadeInUp" style="animation-delay: 0.2s;">
+          Transformez votre processus de recrutement avec des outils puissants et intuitifs.
+        </p>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div class="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 animate-fadeInUp" style="animation-delay: 0.4s;">
+            <i class="fas fa-search-plus text-green-600 text-4xl mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">Analyse intelligente des CV</h3>
+            <p class="text-gray-600">
+              Notre IA analyse les CVs pour extraire les compétences et les expériences, vous faisant gagner un temps précieux.
+            </p>
+          </div>
+          <div class="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 animate-fadeInUp" style="animation-delay: 0.6s;">
+            <i class="fas fa-chart-line text-green-600 text-4xl mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">Score de compatibilité</h3>
+            <p class="text-gray-600">
+              Chaque candidat reçoit un score basé sur vos critères prédéfinis, pour une sélection objective et rapide.
+            </p>
+          </div>
+          <div class="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 animate-fadeInUp" style="animation-delay: 0.8s;">
+            <i class="fas fa-paper-plane text-green-600 text-4xl mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">Gestion simplifiée des appels</h3>
+            <p class="text-gray-600">
+              Créez, modifiez et gérez vos appels à candidatures en quelques clics, tout en restant organisé.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-gray-100">
+      <div class="container mx-auto p-6 grid md:grid-cols-2 gap-12 items-center">
+        <div class="animate-fadeInUp">
+          <img 
+            src="static/.png" 
+            alt="Équipe de recruteurs souriant et travaillant ensemble" 
+            class="rounded-xl shadow-lg transform transition-transform duration-500 hover:scale-105"
+          />
+        </div>
+        <div class="text-center md:text-left animate-fadeInUp" style="animation-delay: 0.2s;">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">Notre mission</h2>
+          <p class="text-gray-700 text-lg">
+            SmartRH a été conçu pour révolutionner le recrutement. Notre objectif est de donner aux recruteurs les outils nécessaires pour trouver les meilleurs talents de manière efficace et équitable, en éliminant les biais et en se concentrant sur les compétences.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-white">
+      <div class="container mx-auto p-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4 animate-fadeInUp">Ce que nos clients en disent</h2>
+        <p class="text-gray-600 text-lg mb-12 animate-fadeInUp" style="animation-delay: 0.2s;">
+          Des recruteurs de premier plan nous font confiance pour optimiser leurs processus.
+        </p>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+            <p class="text-gray-700 italic mb-4">"SmartRH a transformé notre façon de recruter. L'analyse des CV est incroyablement précise et nous fait gagner des heures chaque semaine."</p>
+            <div class="text-sm font-semibold text-gray-800">- Jane Doe, Responsable RH chez Innovate Corp.</div>
+          </div>
+          <div class="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+            <p class="text-gray-700 italic mb-4">"Le score de compatibilité nous a permis de dénicher des profils exceptionnels que nous aurions pu manquer avec une approche traditionnelle."</p>
+            <div class="text-sm font-semibold text-gray-800">- Jean Dupont, Chef de projet chez Tech Solutions</div>
+          </div>
+          <div class="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+            <p class="text-gray-700 italic mb-4">"L'interface est intuitive et le processus est fluide. C'est l'outil de recrutement le plus efficace que j'ai jamais utilisé."</p>
+            <div class="text-sm font-semibold text-gray-800">- Fatima Zahra, Consultante en recrutement</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-green-700 text-white">
+        <div class="container mx-auto p-6 text-center">
+            <h2 class="text-3xl font-bold mb-4 animate-fadeInUp">Prêt à transformer votre recrutement ?</h2>
+            <p class="text-lg mb-8 animate-fadeInUp" style="animation-delay: 0.2s;">
+                Rejoignez SmartRH et trouvez les talents dont votre entreprise a besoin.
+            </p>
+            {% if not current_user.is_authenticated %}
+            <a
+                href="{{ url_for('auth.login') }}"
+                class="inline-block bg-white text-green-700 px-8 py-3 rounded-full shadow-lg font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 animate-fadeInUp"
+                style="animation-delay: 0.4s;"
+            >
+                Inscrivez-vous gratuitement
+            </a>
+            {% else %}
+            <a
+                href="{{ url_for('appel.appel_home') }}"
+                class="inline-block bg-white text-green-700 px-8 py-3 rounded-full shadow-lg font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 animate-fadeInUp"
+                style="animation-delay: 0.4s;"
+            >
+                Retourner à mon espace
+            </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section id="contact-section" class="py-20 bg-gray-900 text-white">
+      <div class="container mx-auto px-6">
+        <div class="grid lg:grid-cols-3 gap-12">
+          <div class="flex flex-col items-center lg:items-start text-center lg:text-left">
+            <div class="flex items-center space-x-4 mb-4">
+              <img
+                src="{{ url_for('static', filename='SmartRH.png') }}"
+                alt="Logo SmartRH"
+                class="h-12 w-auto"
+              />
+              <span class="text-2xl font-extrabold text-green-400">SmartRH</span>
+            </div>
+            <p class="text-gray-400 max-w-sm mb-4">
+              La plateforme intelligente pour la gestion de vos candidatures, conçue pour simplifier le recrutement.
+            </p>
+            <div class="flex items-center space-x-4">
+                <a href="https://x.com/SeyDouxWane" class="text-gray-400 hover:text-green-500 transition-colors duration-200" aria-label="Profil X (anciennement Twitter)">
+                  <i class="fab fa-x-twitter text-2xl"></i>
+                </a>
+                
+                <a href="https://www.linkedin.com/in/papa-seydou-wane-37abaa1a1/" class="text-gray-400 hover:text-green-500 transition-colors duration-200" aria-label="Profil LinkedIn">
+                  <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                
+                <a href="https://www.facebook.com/seydouw1/" class="text-gray-400 hover:text-green-500 transition-colors duration-200" aria-label="Profil Facebook">
+                  <i class="fab fa-facebook-f text-2xl"></i>
+                </a>
+            </div>
+          </div>
+          
+          <div class="text-center lg:text-left">
+            <h3 class="text-xl font-bold mb-4 text-green-400">Plan du site</h3>
+            <ul class="space-y-2">
+              <li><a href="#accueil" class="text-gray-400 hover:text-white transition-colors duration-200">Accueil</a></li>
+              <li><a href="#fonctionnalites" class="text-gray-400 hover:text-white transition-colors duration-200">Fonctionnalités</a></li>
+              <li><a href="#contact-section" class="text-gray-400 hover:text-white transition-colors duration-200">Contact</a></li>
+              <li><a href="{{ url_for('auth.login') }}" class="text-gray-400 hover:text-white transition-colors duration-200">Connexion</a></li>
+            </ul>
+          </div>
+          
+          <div class="text-center lg:text-left">
+            <h3 class="text-xl font-bold mb-4 text-green-400">Contact</h3>
+            <ul class="space-y-4">
+              <li class="flex items-center justify-center lg:justify-start">
+                <i class="fas fa-envelope text-green-400 mr-3 text-xl"></i>
+                <a href="mailto:papaseydou.wane@unchk.edu.sn" class="text-gray-400 hover:text-white transition-colors duration-200">papaseydou.wane@unchk.edu.sn</a>
+              </li>
+              <li class="flex items-center justify-center lg:justify-start">
+                <i class="fas fa-phone-alt text-green-400 mr-3 text-xl"></i>
+                <a href="tel:+221771234567" class="text-gray-400 hover:text-white transition-colors duration-200">+221 77 453 22 38</a>
+              </li>
+              <li class="flex items-center justify-center lg:justify-start">
+                <i class="fas fa-map-marker-alt text-green-400 mr-3 text-xl"></i>
+                <span class="text-gray-400">Dakar, Sénégal</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="mt-12 pt-6 border-t border-gray-700 text-center text-sm text-gray-500">
+          <p>&copy; 2025 SmartRH. Tous droits réservés.</p>
+        </div>
+      </div>
+    </section>
+
+  </body>
+</html>
